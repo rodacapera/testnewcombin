@@ -2,9 +2,12 @@ import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router';
 import { getUsers } from '../apis/apis';
 
+let intervalo = null;
+
 function Users(props) {
     const history = useNavigate();
     const [users, setUsers] = useState(null);
+    
 
     const getData = async user => {
         const access_token = JSON.parse(localStorage.UserActivePrueba).token;
@@ -28,20 +31,40 @@ function Users(props) {
         user.expires = now;
         localStorage.UserActivePrueba = JSON.stringify(user);
     }
+    const validate = (user, intervalo) => {
+        const actual_date = new Date();
+        const expiration = new Date(user.expires);
+        const validate = actual_date > expiration;
+        console.log('validate', validate);
+        if(validate) {
+            console.log('va a limpiar el intervalo y a salir');
+            clearInterval(intervalo); 
+            history("/login")
+        } else { 
+            getData(user);
+        }
+    }
 
     useEffect(() => {
+        
         const user = localStorage.UserActivePrueba ? JSON.parse(localStorage.UserActivePrueba) : false;
         if(user) {
             if(user.expires){
-                const actual_date = new Date();
-                const expiration = new Date(user.expires);
-                const validate = actual_date > expiration;
-                validate ? history("/login") : getData(user);
+                if(!intervalo){
+                    intervalo = setInterval(() => {
+                        console.log('consultado');
+                        validate(user, intervalo);
+                    }, 120000);
+                }else {
+                    console.log('interval existe no lo crea de nuevo');
+                }
+                validate(user, intervalo);
             } else {
                 getData(user)
             }
         }
-    },[props.user])
+    },[props.user]);
+
     return (
         <div>
             <table>
