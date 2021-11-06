@@ -1,4 +1,5 @@
-# Este es un proyecto de pueba
+# This is a test proyect
+## Please login whit username: sarah and password: connor
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
